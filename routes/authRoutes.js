@@ -46,9 +46,8 @@ async function mailer(recieveremail, code) {
 
 router.post('/signup', async (req, res) => {
     console.log('sent by client - ', req.body);
-    const { name, email, password, dob, CNIC } = req.body.fdata;
-    // const name1 = req.body['fdata']['name']
-    // console.log(name1);
+    const { name, email, password, dob, CNIC } = req.body.fdata[0];
+    console.log(req.body.fdata);
     const user = new User({
         name,
         email,
@@ -95,7 +94,7 @@ router.post('/verify', (req, res) => {
                         VerificationCode
                     }
                 ]
-                await mailer(email, VerificationCode);
+                // await mailer(email, VerificationCode);
                 res.send({ message: "Verification Code Sent to your Email", udata: user });
             }
             catch (err) {
@@ -109,7 +108,8 @@ router.post('/verify', (req, res) => {
 
 
 router.post('/signin', async (req, res) => {
-    const { email, password } = req.body.fdata;
+    const { email, password } = req.body;
+    console.log(email);
     console.log(email,password);
     if (!email || !password) {
         return res.status(422).send({ error: "Please add email or password" });
