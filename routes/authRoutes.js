@@ -46,7 +46,7 @@ async function mailer(recieveremail, code) {
 
 router.post('/signup', async (req, res) => {
     console.log('sent by client - ', req.body);
-    const { name, email, password, dob, CNIC } = req.body.fdata[0];
+    const { name, email, password, dob, CNIC } = req.body.fdata;
     console.log(req.body.fdata);
     const user = new User({
         name,
@@ -125,7 +125,7 @@ router.post('/signin', async (req, res) => {
             if (result) {
                 console.log("Password matched");
                 const token = jwt.sign({ _id: savedUser._id }, process.env.JWT_SECRET);
-                res.send({ token });
+                res.send({ token, savedUser });
             }
             else {
                 console.log('Password does not match');
