@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const User = mongoose.model("User");
+const Question = mongoose.model("Question");
+const Answer = mongoose.model("Answer");
 const jwt = require('jsonwebtoken');
 // 
 require('dotenv').config();
@@ -137,5 +139,49 @@ router.post('/signin', async (req, res) => {
         console.log(err);
     }
 })
-
+router.post("/questions", async (req, res) => {
+    try {
+      const question = new Question({
+        user_id: req.body.user_id,
+        question_text: req.body.question_text,
+        is_approved: true,
+      });
+      const savedQuestion = await question.save();
+      res.json(savedQuestion);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+  
+router.post("/answers", async (req, res) => {
+    try {
+      const answer = new Answer({
+        user_id: req.body.user_id,
+        question_id: req.body.question_id,
+        answer_text: req.body.answer_text,
+        is_approved: true,
+      });
+      const savedAnswer = await answer.save();
+      res.json(savedAnswer);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+});
+router.get("/questions", async (req, res) => {
+    try {
+      const questions = await Question.find({ is_approved: true });
+      res.json(questions);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+  
+  router.get("/answers", async (req, res) => {
+    try {
+      const answers = await Answer.find({ is_approved: true });
+      res.json(answers);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
 module.exports = router;

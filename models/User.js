@@ -25,7 +25,18 @@ const userSchema = new mongoose.Schema({
     }
 
 })
-
+const questionSchema = new mongoose.Schema({
+    user_id: String,
+    question_text: String,
+    is_approved: Boolean,
+  });
+  
+  const answerSchema = new mongoose.Schema({
+    user_id: String,
+    question_id: String,
+    answer_text: String,
+    is_approved: Boolean,
+});
 userSchema.pre('save', async function (next) {
     const user = this;
     console.log("Just before saving before hashing  ", user.password);
@@ -39,3 +50,5 @@ userSchema.pre('save', async function (next) {
 
 
 mongoose.model("User", userSchema);
+mongoose.model("Question", questionSchema);
+mongoose.model("Answer", answerSchema);
