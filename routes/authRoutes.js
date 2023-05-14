@@ -139,6 +139,20 @@ router.post('/signin', async (req, res) => {
         console.log(err);
     }
 })
+
+//Enpoint for getting all users
+router.get('/all-users', (req, res) => {
+    User.find({}, (err, users) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(users);
+      }
+    });
+  });
+
+//Endpoint for posting Questions
 router.post("/questions", async (req, res) => {
     try {
       const question = new Question({
@@ -152,7 +166,8 @@ router.post("/questions", async (req, res) => {
       res.status(500).send(err);
     }
   });
-  
+
+//Endpoint for posting answers to a specific question
 router.post("/answers", async (req, res) => {
     try {
       const answer = new Answer({
@@ -167,6 +182,8 @@ router.post("/answers", async (req, res) => {
       res.status(500).send(err);
     }
 });
+
+//To get all questions that are  approved in the community page
 router.get("/questions", async (req, res) => {
     try {
       const questions = await Question.find({ is_approved: true });
@@ -175,13 +192,75 @@ router.get("/questions", async (req, res) => {
       res.status(500).send(err);
     }
   });
-  
+//To get all answers that are  approved in the community page
   router.get("/answers", async (req, res) => {
     try {
       const answers = await Answer.find({ is_approved: true });
       res.json(answers);
     } catch (err) {
       res.status(500).send(err);
+    }
+  });
+  router.put('/approve-question/:id', (req, res) => {
+    const questionId = req.params.id;
+    Question.findByIdAndUpdate(questionId, { is_approved: true }, { new: true }, (err, question) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error approving question');
+      } else {
+        res.json(question);
+      }
+    });
+  });
+  
+  router.put('/reject-question/:id', (req, res) => {
+    const questionId = req.params.id;
+    Question.findByIdAndUpdate(questionId, { is_approved: false }, { new: true }, (err, question) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error rejecting question');
+      } else {
+        res.json(question);
+      }
+    });
+  });
+ // Endpoint to approve an answer for a question
+router.put('/approve-answer/:questionId/:answerId', async (req, res) => {
+    try {
+      const { questionId, answerId } = req.params;
+      const question = await Question.findById(questionId);
+      if (!question) {
+        return res.status(404).send('Question not found');
+      }
+      const answer = await Answer.findById(answerId);
+      if (!answer) {
+        return res.status(404).send('Answer not found');
+      }
+      answer.is_approved = true;
+      await answer.save();
+      res.send('Answer approved successfully');
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal server error');
+    }
+  });
+  router.put('/reject-answer/:questionId/:answerId', async (req, res) => {
+    try {
+      const { questionId, answerId } = req.params;
+      const question = await Question.findById(questionId);
+      if (!question) {
+        return res.status(404).send('Question not found');
+      }
+      const answer = await Answer.findById(answerId);
+      if (!answer) {
+        return res.status(404).send('Answer not found');
+      }
+      answer.is_approved = false;
+      await answer.save();
+      res.send('Answer rejected successfully');
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal server error');
     }
   });
 module.exports = router;
