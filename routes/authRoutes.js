@@ -48,14 +48,15 @@ async function mailer(recieveremail, code) {
 
 router.post('/signup', async (req, res) => {
     console.log('sent by client - ', req.body);
-    const { name, email, password, dob, CNIC } = req.body.fdata;
+    const { name, email, password, dob, CNIC, isAdmin } = req.body.fdata;
     console.log(req.body.fdata);
     const user = new User({
         name,
         email,
         password,
         dob,
-        CNIC
+        CNIC,
+        isAdmin,
     })
 
     try {
@@ -86,6 +87,7 @@ router.post('/verify', (req, res) => {
             try {
 
                 let VerificationCode = Math.floor(100000 + Math.random() * 900000);
+                var isAdmin = false;
                 let user = [
                     {
                         name,
@@ -93,7 +95,8 @@ router.post('/verify', (req, res) => {
                         password,
                         dob,
                         CNIC,
-                        VerificationCode
+                        VerificationCode,
+                        isAdmin,
                     }
                 ]
                 // await mailer(email, VerificationCode);
@@ -201,6 +204,7 @@ router.get("/questions", async (req, res) => {
       res.status(500).send(err);
     }
   });
+  
   router.put('/approve-question/:id', (req, res) => {
     const questionId = req.params.id;
     Question.findByIdAndUpdate(questionId, { is_approved: true }, { new: true }, (err, question) => {

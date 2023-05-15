@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
     CNIC: {
         type: String,
         required: true
+    },
+    isAdmin : {
+        type: Boolean,
+        required: true,
     }
 
 })
