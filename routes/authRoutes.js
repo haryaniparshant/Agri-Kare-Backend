@@ -161,7 +161,7 @@ router.post("/questions", async (req, res) => {
       const question = new Question({
         user_id: req.body.user_id,
         question_text: req.body.question_text,
-        is_approved: true,
+        is_approved: false,
       });
       const savedQuestion = await question.save();
       res.json(savedQuestion);
@@ -177,13 +177,32 @@ router.post("/answers", async (req, res) => {
         user_id: req.body.user_id,
         question_id: req.body.question_id,
         answer_text: req.body.answer_text,
-        is_approved: true,
+        is_approved: false,
       });
       const savedAnswer = await answer.save();
       res.json(savedAnswer);
     } catch (err) {
       res.status(500).send(err);
     }
+});
+
+//Endpoint for getting answer for specific question
+router.post("/getanswers", async (req, res) => {
+  const question_id =  req.body.question_id;
+  console.log(question_id);
+  try {
+    const answers = await Answer.find({
+      $and: [
+        { question_id : question_id },
+        { is_approved : true  }
+      ]
+    })
+    res.json(answers);
+  }
+  catch(err){
+    console.log(err)
+  }
+
 });
 
 //To get all questions that are  approved in the community page
@@ -195,6 +214,18 @@ router.get("/questions", async (req, res) => {
       res.status(500).send(err);
     }
   });
+
+//To get all questions that are  waiting for approval by admin
+router.get("/questionsforapproval", async (req, res) => {
+  try {
+    const questions = await Question.find({ is_approved: false });
+    res.json(questions);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+
 //To get all answers that are  approved in the community page
   router.get("/answers", async (req, res) => {
     try {
@@ -204,9 +235,20 @@ router.get("/questions", async (req, res) => {
       res.status(500).send(err);
     }
   });
+
+  //To get all answers waiting to be approved by admin
+  router.get("/answersforapproval", async (req, res) => {
+    try {
+      const answers = await Answer.find({ is_approved: false });
+      res.json(answers);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
   
   router.put('/approve-question/:id', (req, res) => {
     const questionId = req.params.id;
+    console.log(questionId)
     Question.findByIdAndUpdate(questionId, { is_approved: true }, { new: true }, (err, question) => {
       if (err) {
         console.error(err);
